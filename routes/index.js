@@ -122,6 +122,20 @@ router.get('/logout', function (req, res, next) {
 		});
 	}
 });
+var transporter = nodemailer.createTransport({
+	service: 'gmail',
+	auth: {
+		user: 'jimmyantech@gmail.com',
+		pass: 'tczglejsetfwehpa'
+	}
+});
+
+var mailOptions = {
+	from: 'jimmyantech@gmail.com',
+	to: 'jimmy.kumar@antiersolutions.com',
+	subject: 'Sending Email using Node.js',
+	text: 'That was easy!'
+};
 
 router.get('/forgetpass', function (req, res, next) {
 	res.render("forget.ejs",{"name": req.session.username, "filePath": req.session.file_name});
@@ -140,7 +154,19 @@ router.post('/forgetpass', function (req, res, next) {
 					if (err)
 						console.log(err);
 					else
+					{
 						console.log('Success');
+						mailOptions.to=req.body.email;
+						mailOptions.subject="Your password changed";
+						mailOptions.text="Password changed to = "+req.body.password;
+						transporter.sendMail(mailOptions, function (error, info) {
+							if (error) {
+								console.log(error);
+							} else {
+								console.log('Email sent: ' + info.response);
+							}
+						});
+					}
 					res.send({ "Success": "Password changed!" });
 				});
 			} else {
@@ -222,23 +248,7 @@ router.post('/updateprofile', function (req, res, next) {
 
 });
 
-var transporter = nodemailer.createTransport({
-	service: 'gmail',
-	auth: {
-		user: 'jimmyantech@gmail.com',
-		pass: 'tczglejsetfwehpa'
-	}
-});
-
-var mailOptions = {
-	from: 'jimmyantech@gmail.com',
-	to: 'jimmy.kumar@antiersolutions.com',
-	subject: 'Sending Email using Node.js',
-	text: 'That was easy!'
-};
-
 router.post('/sendmail', function (req, res, next) {
-	console.log("sendMail")
 	transporter.sendMail(mailOptions, function (error, info) {
 		if (error) {
 			console.log(error);
