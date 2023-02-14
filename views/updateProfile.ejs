@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Update Profile</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/styles.css">
+	<link rel="stylesheet" href="./css/header.css">
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$( "#form2" ).submit(function(event) {
+				event.preventDefault();
+				$.ajax({
+					type: 'POST',
+					url: '/updateprofile',
+					data: $('#form2').serialize(),
+					dataType: "json",
+					success: function(response){
+						//alert("a");
+						//console.log(response.Success);
+						$('#form2')[0].reset();
+						//alert("abc");
+						document.getElementById("check").innerHTML="Information Updated";
+
+						setTimeout(function(){
+							document.getElementById("check").innerHTML="";
+						},3000);
+						if (response.Success=="Information changed!") {
+							document.getElementById("aa").click();
+						};
+					},
+					error: function() {
+					}
+				})
+			});
+
+		});
+	</script>
+	<script>
+		function sendMail() {
+			if (confirm('You want to send mail?')) {
+				$.ajax({
+					type: 'POST',
+					url: '/sendmail',
+					dataType: "json",
+					success: function (response) {
+						alert("Mail Sent successfully")
+					},
+					error: function () {
+					}
+				})
+			} else {
+				
+			}
+		}
+	</script>
+</head>
+<body>
+	<header class="site-header">
+		<div style="display: flex;
+			position: absolute;">
+			<div class="profile_image">
+				<%if (filePath.length> 0) { %>
+					<img src='<%= filePath %>' alt="Site Name" />
+					<% } %>
+						<%if (filePath.length <=0) { %>
+							<a href="/uploadImage"><img src="dummyImage.png" alt="Site Name" /></a>
+							<% } %>
+			</div>
+			<div style="margin-left: 10px;">
+				<h3><a href="/profile">
+						<%= name %>
+					</a></h3>
+			</div>
+		</div>
+		<nav class="site-navigation">
+			<ul class="nav">
+				<li><a href="/forgetpass"><i class="fa fa-key" aria-hidden="true"></i> Change Password</a></li>
+				<li><a href="javascript:void(0)" onclick="sendMail()"><i class="fa fa-envelope" aria-hidden="true"></i>
+						Send
+						Mail</a></li>
+				<li><a href="/userlist"><i class="fa fa-bars" aria-hidden="true"></i> User List</a></li>
+			</ul>
+		</nav>
+	</header>
+		<div class="col-md-4 col-md-offset-4">
+			<div>
+				<p>Update Profile</p>
+			</div>
+			<div class="form-group">
+				<form id="form2" method="post" class="registerStyle">
+					<input type="text" name="email" placeholder="E-mail" value='<%= email %>' required="" class="form-control"><br/>
+					<input type="text" name="username" placeholder="Name" value='<%= username %>' required="" class="form-control"><br/>
+					<input type="submit" value="Update" class="btn btn-primary">
+				</form>
+			</div>
+			<div  class="mssg bg-danger">
+				<span id="check"></span>
+				</div>
+				<div><a href="/profile"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back Profile</a></div>
+				<div class="abc">
+					<div id="LangTable"><a href="/login" id="aa"></a>
+				</div>
+			</div>
+			
+			</div>
+		</div>
+
+</body>
+</html>
