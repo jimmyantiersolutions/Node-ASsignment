@@ -155,7 +155,6 @@ router.post('/forgetpass', function (req, res, next) {
 						console.log(err);
 					else
 					{
-						console.log('Success');
 						mailOptions.to=req.body.email;
 						mailOptions.subject="Your password changed";
 						mailOptions.text="Password changed to = "+req.body.password;
