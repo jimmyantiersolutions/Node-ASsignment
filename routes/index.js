@@ -398,4 +398,14 @@ router.get('/profileDetail', function (req, res, next) {
 	});
 });
 
+router.post('/deleteProfile', function (req, res, next) {
+	User.deleteOne({_id: req.body.id},function (err, data) {
+		if (err) {
+			res.send(err);
+		} else {
+			res.send(data);
+		}
+	});
+});
+
 module.exports = router;

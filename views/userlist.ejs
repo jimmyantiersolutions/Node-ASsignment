@@ -45,6 +45,24 @@
 
 			}
 		}
+		function deleteConfirm(_id){
+			if (confirm('Are you sure, You want to delete?')) {
+				$.ajax({
+					type: 'POST',
+					url: '/deleteProfile',
+					data: {id: _id},
+					dataType: "json",
+					success: function (response) {
+						alert("Profile removed successfully")
+						window.location.reload();
+					},
+					error: function () {
+					}
+				})
+			} else {
+
+			}
+		}
 	</script>
 </head>
 
@@ -122,6 +140,7 @@
 								</td>
 								<td>
 									<a href="/profileDetail?id=<%= data[i].id %>" class="btn btn-primary btn-sm">View Detail</a>
+									<button onclick='deleteConfirm("<%= data[i].id %>")' class="btn btn-danger btn-sm">Delete</button>
 								</td>
 							</tr>
 							<% } %>
