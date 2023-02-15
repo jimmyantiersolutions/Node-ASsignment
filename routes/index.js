@@ -91,7 +91,7 @@ router.get('/profile', function (req, res, next) {
 				if (imageData) {
 					req.session.file_name = imageData.file_name;
 					req.session.username = data.username;
-					OtherInfo.findOne({ unique_id: req.session.userId }, function (othererr, otherData) {
+					OtherInfo.findOne({ users: data._id }, function (othererr, otherData) {
 						if (otherData) {
 							req.session.file_name = imageData.file_name;
 							req.session.username = data.username;
@@ -105,9 +105,9 @@ router.get('/profile', function (req, res, next) {
 				} else {
 					req.session.file_name = "";
 					req.session.username = data.username;
-					OtherInfo.findOne({ user_id: req.session.userId }, function (othererr, otherData) {
+					OtherInfo.findOne({ users: data._id }, function (othererr, otherData) {
 						if (otherData) {
-							req.session.file_name = imageData.file_name;
+							req.session.file_name = "";
 							req.session.username = data.username;
 							return res.render('data.ejs', { "name": data.username, "email": data.email, "filePath": "", "address": otherData.address, "phone": otherData.phone, "postalcode": otherData.postalcode });
 						} else {
@@ -208,7 +208,6 @@ var storage = multer.diskStorage({
 		let fileName = Date.now() + '-' + file.originalname;
 		callback(null, fileName);
 		UserImage.findOne({ user_id: req.session.userId }, function (err, res, data) {
-			console.log("req.session.userId", res)
 			if (res === null) {
 				data = new UserImage();
 				data.file_name = fileName;
@@ -255,7 +254,7 @@ router.get('/updateprofile', function (req, res, next) {
 				}
 			});
 		} else {
-			OtherInfo.findOne({ unique_id: req.session.userId }, function (othererr, otherdata) {
+			OtherInfo.findOne({ users: data._id }, function (othererr, otherdata) {
 				if (!otherdata) {
 					return res.render('updateProfile.ejs', { "username": data.username, "email": data.email, "name": req.session.username, "filePath": req.session.file_name, "address": "", "phone": "", "postalcode": "" });
 				} else {
@@ -278,31 +277,33 @@ router.post('/updateprofile', function (req, res, next) {
 			});
 
 		}
+
+		OtherInfo.findOne({ unique_id: req.session.userId }, function (err, otherdata) {
+			if (!otherdata) {
+				otherdata = new OtherInfo();
+				otherdata.users = data._id;
+				otherdata.address = req.body.address;
+				otherdata.phone = req.body.phone;
+				otherdata.postalcode = req.body.postalcode;
+				otherdata.save(function (err, Person) {
+					if (err)
+						console.log(err);
+					else {
+						console.log('Success');
+					}
+				});
+			} else {
+				// update other info
+				OtherInfo.updateOne({ unique_id: req.session.userId }, { "address": req.body.address, "phone": req.body.phone, "postalcode": req.body.postalcode }).then((response) => {
+					console.log("Update");
+				}).catch((err) => {
+					console.log("Not Record Found")
+				});
+			}
+		});
 	});
 
-	OtherInfo.findOne({ unique_id: req.session.userId }, function (err, data) {
-		if (!data) {
-			data = new OtherInfo();
-			data.unique_id = req.session.userId;
-			data.address = req.body.address;
-			data.phone = req.body.phone;
-			data.postalcode = req.body.postalcode;
-			data.save(function (err, Person) {
-				if (err)
-					console.log(err);
-				else {
-					console.log('Success');
-				}
-			});
-		} else {
-			// update other info
-			OtherInfo.updateOne({ unique_id: req.session.userId }, { "address": req.body.address, "phone": req.body.phone, "postalcode": req.body.postalcode }).then((response) => {
-				console.log("Update");
-			}).catch((err) => {
-				console.log("Not Record Found")
-			});
-		}
-	});
+	
 });
 
 router.post('/sendmail', function (req, res, next) {
@@ -324,7 +325,7 @@ router.get('/userlist', function (req, res, next) {
 			OtherInfo.find(function (oerr, otherdata) {
 				var concatdata = [];
 				data.forEach(element => {
-					var _othd = otherdata.find(d => d.unique_id == element.unique_id);
+					var _othd = otherdata.find(d => d.users.toString()==element._id.toString());
 					var obj = new Object();
 					obj.email = element.email;
 					obj.username = element.username;
@@ -335,10 +336,6 @@ router.get('/userlist', function (req, res, next) {
 				});
 				return res.render('userlist.ejs', { "data": concatdata, "name": req.session.username, "filePath": req.session.file_name });
 			});
-			// data.forEach(element => {
-			// 	console.log(element);
-			// });
-			// return res.render('userlist.ejs', { "data": data, "name": req.session.username, "filePath": req.session.file_name });
 		}
 	}).sort({ _id: -1 });
 });
@@ -351,7 +348,7 @@ router.post('/import', function (req, res, next) {
 			OtherInfo.find(function (oerr, otherdata) {
 				var concatdata = [];
 				data.forEach(element => {
-					var _othd = otherdata.find(d => d.unique_id == element.unique_id);
+					var _othd = otherdata.find(d => d.users.toString()==element._id.toString());
 					var obj = new Object();
 					obj.email = element.email;
 					obj.username = element.username;

@@ -6,6 +6,10 @@ otherSchema = new Schema( {
 	address: String,
 	phone: String,
 	postalcode: String,
+	users: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User'
+	},
 }),
 OtherInfo = mongoose.model('OtherInfo', otherSchema);
 
