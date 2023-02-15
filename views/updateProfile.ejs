@@ -32,6 +32,7 @@
 						if (response.Success=="Information changed!") {
 							document.getElementById("aa").click();
 						};
+						document.getElementById("bbb").click();
 					},
 					error: function() {
 					}
@@ -96,13 +97,16 @@
 				<form id="form2" method="post" class="registerStyle">
 					<input type="text" name="email" placeholder="E-mail" value='<%= email %>' required="" class="form-control"><br/>
 					<input type="text" name="username" placeholder="Name" value='<%= username %>' required="" class="form-control"><br/>
+					<input type="text" name="address" placeholder="Address" value='<%= address %>' class="form-control"><br/>
+					<input type="number" name="phone" placeholder="Phone" value='<%= phone %>' class="form-control"><br/>
+					<input type="text" name="postalcode" placeholder="Postal Code" value='<%= postalcode %>' required="" class="form-control"><br/>
 					<input type="submit" value="Update" class="btn btn-primary">
 				</form>
 			</div>
 			<div  class="mssg bg-danger">
 				<span id="check"></span>
 				</div>
-				<div><a href="/profile"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back Profile</a></div>
+				<div><a href="/profile" id="bbb"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back Profile</a></div>
 				<div class="abc">
 					<div id="LangTable"><a href="/login" id="aa"></a>
 				</div>

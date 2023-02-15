@@ -2,8 +2,11 @@ var express = require('express');
 var router = express.Router();
 var User = require('../models/user');
 var UserImage = require('../models/userImage');
+var OtherInfo = require('../models/otherInfo');
 const multer = require("multer");
 var nodemailer = require('nodemailer');
+const reader = require('xlsx')
+var fs = require('fs');
 
 router.get('/', function (req, res, next) {
 	return res.render('index.ejs');
@@ -86,13 +89,33 @@ router.get('/profile', function (req, res, next) {
 		} else {
 			UserImage.findOne({ user_id: req.session.userId }, function (err, imageData) {
 				if (imageData) {
-					req.session.file_name=imageData.file_name;
-					req.session.username=data.username;
-					return res.render('data.ejs', { "name": data.username, "email": data.email, "filePath": imageData.file_name });
+					req.session.file_name = imageData.file_name;
+					req.session.username = data.username;
+					OtherInfo.findOne({ unique_id: req.session.userId }, function (othererr, otherData) {
+						if (otherData) {
+							req.session.file_name = imageData.file_name;
+							req.session.username = data.username;
+							return res.render('data.ejs', { "name": data.username, "email": data.email, "filePath": imageData.file_name, "address": otherData.address, "phone": otherData.phone, "postalcode": otherData.postalcode });
+						} else {
+							req.session.file_name = "";
+							req.session.username = data.username;
+							return res.render('data.ejs', { "name": data.username, "email": data.email, "filePath": imageData.file_name, "address": "N/A", "phone": "N/A", "postalcode": "N/A" });
+						}
+					});
 				} else {
-					req.session.file_name="";
-					req.session.username=data.username;
-					return res.render('data.ejs', { "name": data.username, "email": data.email, "filePath": "" });
+					req.session.file_name = "";
+					req.session.username = data.username;
+					OtherInfo.findOne({ user_id: req.session.userId }, function (othererr, otherData) {
+						if (otherData) {
+							req.session.file_name = imageData.file_name;
+							req.session.username = data.username;
+							return res.render('data.ejs', { "name": data.username, "email": data.email, "filePath": "", "address": otherData.address, "phone": otherData.phone, "postalcode": otherData.postalcode });
+						} else {
+							req.session.file_name = "";
+							req.session.username = data.username;
+							return res.render('data.ejs', { "name": data.username, "email": data.email, "filePath": "", "address": "N/A", "phone": "N/A", "postalcode": "N/A" });
+						}
+					});
 				}
 
 			});
@@ -103,9 +126,9 @@ router.get('/profile', function (req, res, next) {
 router.get('/uploadImage', function (req, res, next) {
 	UserImage.findOne({ user_id: req.session.userId }, function (err, data) {
 		if (!data) {
-			return res.render('uploadImage.ejs', { "filePath": "" , "name": req.session.username, "filePath": req.session.file_name});
+			return res.render('uploadImage.ejs', { "filePath": "", "name": req.session.username, "filePath": req.session.file_name });
 		} else {
-			return res.render('uploadImage.ejs', { "filePath": data.file_name , "name": req.session.username, "filePath": req.session.file_name});
+			return res.render('uploadImage.ejs', { "filePath": data.file_name, "name": req.session.username, "filePath": req.session.file_name });
 		}
 	});
 });
@@ -138,7 +161,7 @@ var mailOptions = {
 };
 
 router.get('/forgetpass', function (req, res, next) {
-	res.render("forget.ejs",{"name": req.session.username, "filePath": req.session.file_name});
+	res.render("forget.ejs", { "name": req.session.username, "filePath": req.session.file_name });
 });
 
 router.post('/forgetpass', function (req, res, next) {
@@ -153,11 +176,10 @@ router.post('/forgetpass', function (req, res, next) {
 				data.save(function (err, Person) {
 					if (err)
 						console.log(err);
-					else
-					{
-						mailOptions.to=req.body.email;
-						mailOptions.subject="Your password changed";
-						mailOptions.text="Password changed to = "+req.body.password;
+					else {
+						mailOptions.to = req.body.email;
+						mailOptions.subject = "Your password changed";
+						mailOptions.text = "Password changed to = " + req.body.password;
 						transporter.sendMail(mailOptions, function (error, info) {
 							if (error) {
 								console.log(error);
@@ -225,9 +247,21 @@ router.post('/api/photo', function (req, res) {
 router.get('/updateprofile', function (req, res, next) {
 	User.findOne({ unique_id: req.session.userId }, function (err, data) {
 		if (!data) {
-			return res.render('updateProfile.ejs', { "username": "", "email": "", "name": req.session.username, "filePath": req.session.file_name });
+			OtherInfo.findOne({ unique_id: req.session.userId }, function (othererr, otherdata) {
+				if (!otherdata) {
+					return res.render('updateProfile.ejs', { "username": "", "email": "", "name": req.session.username, "filePath": req.session.file_name, "address": "", "phone": "", "postalcode": "" });
+				} else {
+					return res.render('updateProfile.ejs', { "username": "", "email": "", "name": req.session.username, "filePath": req.session.file_name, "address": otherdata.address, "phone": otherdata.phone, "postalcode": otherdata.postalcode });
+				}
+			});
 		} else {
-			return res.render('updateProfile.ejs', { "username": data.username, "email": data.email, "name": req.session.username, "filePath": req.session.file_name });
+			OtherInfo.findOne({ unique_id: req.session.userId }, function (othererr, otherdata) {
+				if (!otherdata) {
+					return res.render('updateProfile.ejs', { "username": data.username, "email": data.email, "name": req.session.username, "filePath": req.session.file_name, "address": "", "phone": "", "postalcode": "" });
+				} else {
+					return res.render('updateProfile.ejs', { "username": data.username, "email": data.email, "name": req.session.username, "filePath": req.session.file_name, "address": otherdata.address, "phone": otherdata.phone, "postalcode": otherdata.postalcode });
+				}
+			});
 		}
 	});
 });
@@ -237,14 +271,38 @@ router.post('/updateprofile', function (req, res, next) {
 		if (!data) {
 			res.send({ "Success": "This Email Is not regestered!" });
 		} else {
-			User.updateOne({ _id: data._id }, { "email": req.body.email, "username": req.body.username }).then((response) => {
+			User.updateOne({ _id: data._id }, { "email": req.body.email, "username": req.body.username, "address": req.body.address, "phone": req.body.phone, "postalcode": req.body.postalcode }).then((response) => {
 				res.status(200).send(response);
 			}).catch((err) => {
 				res.status(400).send("Not Record Found")
-			})
+			});
+
 		}
 	});
 
+	OtherInfo.findOne({ unique_id: req.session.userId }, function (err, data) {
+		if (!data) {
+			data = new OtherInfo();
+			data.unique_id = req.session.userId;
+			data.address = req.body.address;
+			data.phone = req.body.phone;
+			data.postalcode = req.body.postalcode;
+			data.save(function (err, Person) {
+				if (err)
+					console.log(err);
+				else {
+					console.log('Success');
+				}
+			});
+		} else {
+			// update other info
+			OtherInfo.updateOne({ unique_id: req.session.userId }, { "address": req.body.address, "phone": req.body.phone, "postalcode": req.body.postalcode }).then((response) => {
+				console.log("Update");
+			}).catch((err) => {
+				console.log("Not Record Found")
+			});
+		}
+	});
 });
 
 router.post('/sendmail', function (req, res, next) {
@@ -263,10 +321,54 @@ router.get('/userlist', function (req, res, next) {
 		if (!data) {
 			res.redirect('/');
 		} else {
-			return res.render('userlist.ejs', { "data": data, "name": req.session.username, "filePath": req.session.file_name });
+			OtherInfo.find(function (oerr, otherdata) {
+				var concatdata = [];
+				data.forEach(element => {
+					var _othd = otherdata.find(d => d.unique_id == element.unique_id);
+					var obj = new Object();
+					obj.email = element.email;
+					obj.username = element.username;
+					obj.address = _othd ? _othd.address : "N/A";
+					obj.phone = _othd ? _othd.phone : "N/A";
+					obj.postalcode = _othd ? _othd.postalcode : "N/A";
+					concatdata.push(obj);
+				});
+				return res.render('userlist.ejs', { "data": concatdata, "name": req.session.username, "filePath": req.session.file_name });
+			});
+			// data.forEach(element => {
+			// 	console.log(element);
+			// });
+			// return res.render('userlist.ejs', { "data": data, "name": req.session.username, "filePath": req.session.file_name });
 		}
 	}).sort({ _id: -1 });
 });
 
+router.post('/import', function (req, res, next) {
+	User.find(function (err, data) {
+		if (!data) {
+			res.redirect('/');
+		} else {
+			OtherInfo.find(function (oerr, otherdata) {
+				var concatdata = [];
+				data.forEach(element => {
+					var _othd = otherdata.find(d => d.unique_id == element.unique_id);
+					var obj = new Object();
+					obj.email = element.email;
+					obj.username = element.username;
+					obj.address = _othd ? _othd.address : "N/A";
+					obj.phone = _othd ? _othd.phone : "N/A";
+					obj.postalcode = _othd ? _othd.postalcode : "N/A";
+					concatdata.push(obj);
+				});
+				const file = reader.readFile('./uploads/test.xlsx')
+				const ws = reader.utils.json_to_sheet(concatdata)
+				reader.utils.book_append_sheet(file, ws, "mysheet"+Math.random(0,5))
+				// Writing to our file
+				reader.writeFile(file, './uploads/test.xlsx');
+				res.send(otherdata)
+			});
+		}
+	}).sort({ _id: -1 });
+});
 
 module.exports = router;

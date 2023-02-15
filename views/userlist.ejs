@@ -25,7 +25,24 @@
 					}
 				})
 			} else {
-				
+
+			}
+		}
+
+		function iportData(){
+			if (confirm('You want import data?')) {
+				$.ajax({
+					type: 'POST',
+					url: '/import',
+					dataType: "json",
+					success: function (response) {
+						alert("Data imported successfully")
+					},
+					error: function () {
+					}
+				})
+			} else {
+
 			}
 		}
 	</script>
@@ -60,44 +77,61 @@
 			</ul>
 		</nav>
 	</header>
-	<div class="col-md-4 col-md-offset-4 profileStyle">
-		<div>
-			<p>User List</p>
-		</div>
-		<div>
-			<center>
-				<table class="table table-hover">
-					<tr>
-						<th>Sr. No.</th>
-						<th>Name </th>
-						<th>
-							Email
-						</th>
-					</tr>
-					<% for(var i=0; i<data.length; i++) {%>
-						<tr>
-							<td>
-								<%= i+1 %>
-							</td>
-							<td>
-								<i class="fa fa-address-card" aria-hidden="true"></i>
-								<%= data[i].username %>
-							</td>
-							<td>
-								<i class="fa fa-envelope" aria-hidden="true"></i>
-								<%= data[i].email %>
-							</td>
+	<div style="padding-left: 20px;padding-right: 20px;">
+		<div class="col-md-12 profileStyle">
+			<div>
+				<p>Users List(<%= data.length %>)</p>
+			</div>
+			<button class="btn btn-success" style="float: right;margin-top: -46px;" onclick="iportData()">Import to excel</button>
+			<div>
+				<center>
+					<table class="table table-striped">
+						<tr style="background-color: lightgray;">
+							<th>#</th>
+							<th>Name </th>
+							<th>
+								Email
+							</th>
+							<th>Address </th>
+							<th>Phone Number </th>
+							<th>Postal Code </th>
 						</tr>
-						<% } %>
+						<% for(var i=0; i<data.length; i++) {%>
+							<tr>
+								<td>
+									<%= i+1 %>
+								</td>
+								<td>
+									<i class="fa fa-address-card" aria-hidden="true"></i>
+									<%= data[i].username %>
+								</td>
+								<td>
+									<i class="fa fa-envelope" aria-hidden="true"></i>
+									<%= data[i].email %>
+								</td>
+								<td>
+									<i class="fa fa-map-marker" aria-hidden="true"></i>
+									<%= data[i].address %>
+								</td>
+								<td>
+									<%= data[i].phone %>
+								</td>
+								<td>
+									<%= data[i].postalcode %>
+								</td>
+							</tr>
+							<% } %>
 
-				</table>
-			</center>
-		</div>
-		<div><a href="/profile"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back Profile</a></div>
-		<div class="abc">
-			<a href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a>
+					</table>
+				</center>
+			</div>
+			<div><a href="/profile"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back Profile</a></div>
+			<div class="abc">
+				<a href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a>
+			</div>
 		</div>
 	</div>
+	
 </body>
 
 </html>

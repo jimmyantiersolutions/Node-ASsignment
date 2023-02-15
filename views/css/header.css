@@ -43,7 +43,7 @@
   }
 
   .profile_image {
-    display: inline-block;
+    display: block;
     height: 78px;
     width: 78px;
     border-radius: 100%;
@@ -62,6 +62,7 @@
   .nav>li>a {
     text-decoration: none;
     background-color: #c1c3ca;
+    border-radius: 5px;
   }
   .nav>li>a.active {
     text-decoration: none;
@@ -75,3 +76,4 @@
     background-color: #ffcc00de;
     color: black;
   }
+ 

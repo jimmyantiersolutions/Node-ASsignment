@@ -35,3 +35,4 @@ input{
     margin-top: 20px;
     border-radius: 5px;
 }
+tr:nth-child(even) {background-color: #f2f2f2;}
