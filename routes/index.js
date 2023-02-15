@@ -378,9 +378,9 @@ router.get('/profileDetail', function (req, res, next) {
 				if (imageData) {
 					OtherInfo.findOne({ users: data._id }, function (othererr, otherData) {
 						if (otherData) {
-							return res.render('profileDetail.ejs', { "name": data.username, "detailname": data.username , "email": data.email, "image_profile": imageData.file_name, "filePath": req.session.file_name, "address": otherData.address, "phone": otherData.phone, "postalcode": otherData.postalcode });
+							return res.render('profileDetail.ejs', { "name": req.session.username, "detailname": data.username , "email": data.email, "image_profile": imageData.file_name, "filePath": req.session.file_name, "address": otherData.address, "phone": otherData.phone, "postalcode": otherData.postalcode });
 						} else {
-							return res.render('profileDetail.ejs', { "name": data.username, "detailname": data.username, "email": data.email, "image_profile": imageData.file_name, "filePath": req.session.file_name, "address": "N/A", "phone": "N/A", "postalcode": "N/A" });
+							return res.render('profileDetail.ejs', { "name": req.session.username, "detailname": data.username, "email": data.email, "image_profile": imageData.file_name, "filePath": req.session.file_name, "address": "N/A", "phone": "N/A", "postalcode": "N/A" });
 						}
 					});
 				} else {
