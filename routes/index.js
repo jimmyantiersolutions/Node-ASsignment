@@ -225,7 +225,7 @@ var storage = multer.diskStorage({
 				UserImage.updateOne({ _id: res._id }, { "file_name": fileName, "original_name": file.originalname }).then((response) => {
 					res.status(200).send(response);
 				}).catch((err) => {
-					res.status(400).send("Not Record Found")
+					console.log("Not Record Found")
 				})
 			}
 		});
@@ -327,6 +327,7 @@ router.get('/userlist', function (req, res, next) {
 				data.forEach(element => {
 					var _othd = otherdata.find(d => d.users.toString()==element._id.toString());
 					var obj = new Object();
+					obj.id = element._id;
 					obj.email = element.email;
 					obj.username = element.username;
 					obj.address = _othd ? _othd.address : "N/A";
@@ -366,6 +367,35 @@ router.post('/import', function (req, res, next) {
 			});
 		}
 	}).sort({ _id: -1 });
+});
+
+router.get('/profileDetail', function (req, res, next) {
+	User.findOne({ _id: req.query.id }, function (err, data) {
+		if (!data) {
+			res.redirect('/');
+		} else {
+			UserImage.findOne({ user_id: data.unique_id }, function (err, imageData) {
+				if (imageData) {
+					OtherInfo.findOne({ users: data._id }, function (othererr, otherData) {
+						if (otherData) {
+							return res.render('profileDetail.ejs', { "name": data.username, "detailname": data.username , "email": data.email, "image_profile": imageData.file_name, "filePath": req.session.file_name, "address": otherData.address, "phone": otherData.phone, "postalcode": otherData.postalcode });
+						} else {
+							return res.render('profileDetail.ejs', { "name": data.username, "detailname": data.username, "email": data.email, "image_profile": imageData.file_name, "filePath": req.session.file_name, "address": "N/A", "phone": "N/A", "postalcode": "N/A" });
+						}
+					});
+				} else {
+					OtherInfo.findOne({ users: data._id }, function (othererr, otherData) {
+						if (otherData) {
+							return res.render('profileDetail.ejs', { "name": req.session.username, "detailname": data.username, "email": data.email,"image_profile": "", "filePath": req.session.file_name, "address": otherData.address, "phone": otherData.phone, "postalcode": otherData.postalcode });
+						} else {
+							return res.render('profileDetail.ejs', { "name": req.session.username, "detailname": data.username, "email": data.email, "image_profile": "", "filePath": req.session.file_name, "address": "N/A", "phone": "N/A", "postalcode": "N/A" });
+						}
+					});
+				}
+
+			});
+		}
+	});
 });
 
 module.exports = router;

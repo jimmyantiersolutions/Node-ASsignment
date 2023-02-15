@@ -20,17 +20,18 @@
 					reader.onload = function (event) {
 						console.log(event.target.result);
 						$("#hdnValue").val(1);
-						$("#previewDiv").css("display","block");
-						$("#imageDiv").css("display","none");
+						$("#previewDiv").css("display", "block");
+						$("#imageDiv").css("display", "none");
 						$('#imgPreview').attr('src', event.target.result);
 					}
 					reader.readAsDataURL(file);
 				}
 			});
+
 			$('#formUpload').submit(function () {
 				$("#hdnValue").val(0)
-				$("#previewDiv").css("display","none");
-				$("#imageDiv").css("display","block");
+				$("#previewDiv").css("display", "none");
+				$("#imageDiv").css("display", "block");
 				debugger
 				$(this).ajaxSubmit({
 
@@ -47,6 +48,14 @@
 			});
 
 		});
+		function submitButton() {
+			debugger
+			if ($('#userPhoto')[0].files.length === 0) {
+            	alert("No files selected");
+			} else {
+				document.getElementById("btnUploadImage").click();
+			}
+		}
 	</script>
 	<script>
 		function sendMail() {
@@ -62,7 +71,7 @@
 					}
 				})
 			} else {
-				
+
 			}
 		}
 	</script>
@@ -122,15 +131,16 @@
 								<% } %>
 				</div>
 				<div style="margin-top: 20px;">
-					<input type="submit" value="Upload Image" name="submit">
+					<input type="submit" id="btnUploadImage" style="display: none;" value="Upload Image" name="submit">
+					<input type="button" onClick="submitButton()" value="Upload Image">
 				</div>
 				<span id="status"></span>
 				<div><a href="/profile"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back Profile</a></div>
 		</div>
 		<div class="abc">
 			<div id="LangTable"><a href="/login" id="aa"></a>
+			</div>
 		</div>
-	</div>
 </body>
 
 </html>

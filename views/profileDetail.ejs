@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Welcome</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="./css/styles.css">
+	<link rel="stylesheet" href="./css/header.css">
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+	<script>
+		function sendMail() {
+			if (confirm('You want to send mail?')) {
+				$.ajax({
+					type: 'POST',
+					url: '/sendmail',
+					dataType: "json",
+					success: function (response) {
+						alert("Mail Sent successfully")
+					},
+					error: function () {
+					}
+				})
+			} else {
+				
+			}
+		}
+	</script>
+</head>
+
+<body>
+	<header class="site-header">
+		<div style="display: flex;
+			position: absolute;">
+			<div class="profile_image">
+				<%if (filePath.length> 0) { %>
+					<img src='<%= filePath %>' alt="Site Name" />
+					<% } %>
+						<%if (filePath.length <=0) { %>
+							<a href="/uploadImage"><img src="dummyImage.png" alt="Site Name" /></a>
+							<% } %>
+			</div>
+			<div style="margin-left: 10px;">
+				<h3><a href="/profile">
+						<%= name %>
+					</a></h3>
+			</div>
+		</div>
+		<nav class="site-navigation">
+			<ul class="nav">
+				<li><a href="/forgetpass"><i class="fa fa-key" aria-hidden="true"></i> Change Password</a></li>
+				<li><a href="javascript:void(0)" onclick="sendMail()"><i class="fa fa-envelope" aria-hidden="true"></i>
+						Send
+						Mail</a></li>
+				<li><a href="/userlist"><i class="fa fa-bars" aria-hidden="true"></i> User List</a></li>
+				<li><a href="/profile" class="active"><i class="fa fa-user" aria-hidden="true"></i> My Profile</a></li>
+			</ul>
+		</nav>
+	</header>
+	<div class="col-md-4 col-md-offset-4 profileStyle">
+		<div>
+			<p>Profile Detail</p>
+		</div>
+		<div>
+			<center>
+				<table class="table table-hover text-center">
+					<tr>
+						<td>Name </td>
+						<td>
+							<%= detailname %>
+						</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Email </td>
+						<td>
+							<%= email %>
+						</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Address </td>
+						<td>
+							<%= address %>
+						</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Phone Number </td>
+						<td>
+							<%= phone %>
+						</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Postal Coe </td>
+						<td>
+							<%= postalcode %>
+						</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Profile Image </td>
+						<td>
+							<%if (image_profile.length> 0) { %>
+								<img width="150" src='<%= image_profile %>' />
+								<% } %>
+									<%if (image_profile.length <=0) { %>
+										<img width="100" src="dummyImage.png" />
+										<% } %>
+
+						</td>
+					</tr>
+				</table>
+			</center>
+		</div>
+		<div class="abc">
+			<a href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i> Logout</a>
+		</div>
+	</div>
+</body>
+
+</html>

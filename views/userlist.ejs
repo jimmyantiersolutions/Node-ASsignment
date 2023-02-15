@@ -95,6 +95,7 @@
 							<th>Address </th>
 							<th>Phone Number </th>
 							<th>Postal Code </th>
+							<th>Action</th>
 						</tr>
 						<% for(var i=0; i<data.length; i++) {%>
 							<tr>
@@ -118,6 +119,9 @@
 								</td>
 								<td>
 									<%= data[i].postalcode %>
+								</td>
+								<td>
+									<a href="/profileDetail?id=<%= data[i].id %>" class="btn btn-primary btn-sm">View Detail</a>
 								</td>
 							</tr>
 							<% } %>
