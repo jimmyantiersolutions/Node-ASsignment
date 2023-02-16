@@ -325,6 +325,7 @@ router.get('/userlist', function (req, res, next) {
 		.find({})
 		.skip((perPage * page) - perPage)
 		.limit(perPage)
+		.sort({ _id: -1 })
 		.exec(function (err, data) {
 			User.count().exec(function (err, count) {
 				if (err) return next(err)
@@ -350,27 +351,6 @@ router.get('/userlist', function (req, res, next) {
 					})
 				})
 			})
-			// User.find(function (err, data) {
-			// 	if (!data) {
-			// 		res.redirect('/');
-			// 	} else {
-			// 		OtherInfo.find(function (oerr, otherdata) {
-			// 			var concatdata = [];
-			// 			data.forEach(element => {
-			// 				var _othd = otherdata.find(d => d.users.toString()==element._id.toString());
-			// 				var obj = new Object();
-			// 				obj.id = element._id;
-			// 				obj.email = element.email;
-			// 				obj.username = element.username;
-			// 				obj.address = _othd ? _othd.address : "N/A";
-			// 				obj.phone = _othd ? _othd.phone : "N/A";
-			// 				obj.postalcode = _othd ? _othd.postalcode : "N/A";
-			// 				concatdata.push(obj);
-			// 			});
-			// 			return res.render('userlist.ejs', { "data": concatdata, "name": req.session.username, "filePath": req.session.file_name });
-			// 		});
-			// 	}
-			// }).sort({ _id: -1 });
 		});
 	});
 
