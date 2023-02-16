@@ -303,7 +303,7 @@ router.post('/updateprofile', function (req, res, next) {
 		});
 	});
 
-	
+
 });
 
 router.post('/sendmail', function (req, res, next) {
@@ -318,94 +318,127 @@ router.post('/sendmail', function (req, res, next) {
 });
 
 router.get('/userlist', function (req, res, next) {
-	User.find(function (err, data) {
-		if (!data) {
-			res.redirect('/');
-		} else {
-			OtherInfo.find(function (oerr, otherdata) {
-				var concatdata = [];
-				data.forEach(element => {
-					var _othd = otherdata.find(d => d.users.toString()==element._id.toString());
-					var obj = new Object();
-					obj.id = element._id;
-					obj.email = element.email;
-					obj.username = element.username;
-					obj.address = _othd ? _othd.address : "N/A";
-					obj.phone = _othd ? _othd.phone : "N/A";
-					obj.postalcode = _othd ? _othd.postalcode : "N/A";
-					concatdata.push(obj);
-				});
-				return res.render('userlist.ejs', { "data": concatdata, "name": req.session.username, "filePath": req.session.file_name });
-			});
-		}
-	}).sort({ _id: -1 });
-});
-
-router.post('/import', function (req, res, next) {
-	User.find(function (err, data) {
-		if (!data) {
-			res.redirect('/');
-		} else {
-			OtherInfo.find(function (oerr, otherdata) {
-				var concatdata = [];
-				data.forEach(element => {
-					var _othd = otherdata.find(d => d.users.toString()==element._id.toString());
-					var obj = new Object();
-					obj.email = element.email;
-					obj.username = element.username;
-					obj.address = _othd ? _othd.address : "N/A";
-					obj.phone = _othd ? _othd.phone : "N/A";
-					obj.postalcode = _othd ? _othd.postalcode : "N/A";
-					concatdata.push(obj);
-				});
-				const file = reader.readFile('./uploads/test.xlsx')
-				const ws = reader.utils.json_to_sheet(concatdata)
-				reader.utils.book_append_sheet(file, ws, "mysheet"+Math.random(0,5))
-				// Writing to our file
-				reader.writeFile(file, './uploads/test.xlsx');
-				res.send(otherdata)
-			});
-		}
-	}).sort({ _id: -1 });
-});
-
-router.get('/profileDetail', function (req, res, next) {
-	User.findOne({ _id: req.query.id }, function (err, data) {
-		if (!data) {
-			res.redirect('/');
-		} else {
-			UserImage.findOne({ user_id: data.unique_id }, function (err, imageData) {
-				if (imageData) {
-					OtherInfo.findOne({ users: data._id }, function (othererr, otherData) {
-						if (otherData) {
-							return res.render('profileDetail.ejs', { "name": req.session.username, "detailname": data.username , "email": data.email, "image_profile": imageData.file_name, "filePath": req.session.file_name, "address": otherData.address, "phone": otherData.phone, "postalcode": otherData.postalcode });
-						} else {
-							return res.render('profileDetail.ejs', { "name": req.session.username, "detailname": data.username, "email": data.email, "image_profile": imageData.file_name, "filePath": req.session.file_name, "address": "N/A", "phone": "N/A", "postalcode": "N/A" });
-						}
+	var perPage = 4
+	var page = req.query.page || 1
+	var concatdata = [];
+	User
+		.find({})
+		.skip((perPage * page) - perPage)
+		.limit(perPage)
+		.exec(function (err, data) {
+			User.count().exec(function (err, count) {
+				if (err) return next(err)
+				OtherInfo.find(function (oerr, otherdata) {
+					data.forEach(element => {
+						var _othd = otherdata.find(d => d.users.toString() == element._id.toString());
+						var obj = new Object();
+						obj.id = element._id;
+						obj.email = element.email;
+						obj.username = element.username;
+						obj.address = _othd ? _othd.address : "N/A";
+						obj.phone = _othd ? _othd.phone : "N/A";
+						obj.postalcode = _othd ? _othd.postalcode : "N/A";
+						concatdata.push(obj);
 					});
-				} else {
-					OtherInfo.findOne({ users: data._id }, function (othererr, otherData) {
-						if (otherData) {
-							return res.render('profileDetail.ejs', { "name": req.session.username, "detailname": data.username, "email": data.email,"image_profile": "", "filePath": req.session.file_name, "address": otherData.address, "phone": otherData.phone, "postalcode": otherData.postalcode });
-						} else {
-							return res.render('profileDetail.ejs', { "name": req.session.username, "detailname": data.username, "email": data.email, "image_profile": "", "filePath": req.session.file_name, "address": "N/A", "phone": "N/A", "postalcode": "N/A" });
-						}
+					res.render('userlist.ejs', {
+						data: concatdata,
+						current: page,
+						name: req.session.username,
+						filePath: req.session.file_name,
+						pages: Math.ceil(count / perPage),
+						count: count
+					})
+				})
+			})
+			// User.find(function (err, data) {
+			// 	if (!data) {
+			// 		res.redirect('/');
+			// 	} else {
+			// 		OtherInfo.find(function (oerr, otherdata) {
+			// 			var concatdata = [];
+			// 			data.forEach(element => {
+			// 				var _othd = otherdata.find(d => d.users.toString()==element._id.toString());
+			// 				var obj = new Object();
+			// 				obj.id = element._id;
+			// 				obj.email = element.email;
+			// 				obj.username = element.username;
+			// 				obj.address = _othd ? _othd.address : "N/A";
+			// 				obj.phone = _othd ? _othd.phone : "N/A";
+			// 				obj.postalcode = _othd ? _othd.postalcode : "N/A";
+			// 				concatdata.push(obj);
+			// 			});
+			// 			return res.render('userlist.ejs', { "data": concatdata, "name": req.session.username, "filePath": req.session.file_name });
+			// 		});
+			// 	}
+			// }).sort({ _id: -1 });
+		});
+	});
+
+	router.post('/import', function (req, res, next) {
+		User.find(function (err, data) {
+			if (!data) {
+				res.redirect('/');
+			} else {
+				OtherInfo.find(function (oerr, otherdata) {
+					var concatdata = [];
+					data.forEach(element => {
+						var _othd = otherdata.find(d => d.users.toString() == element._id.toString());
+						var obj = new Object();
+						obj.email = element.email;
+						obj.username = element.username;
+						obj.address = _othd ? _othd.address : "N/A";
+						obj.phone = _othd ? _othd.phone : "N/A";
+						obj.postalcode = _othd ? _othd.postalcode : "N/A";
+						concatdata.push(obj);
 					});
-				}
-
-			});
-		}
+					const file = reader.readFile('./uploads/test.xlsx')
+					const ws = reader.utils.json_to_sheet(concatdata)
+					reader.utils.book_append_sheet(file, ws, "mysheet" + Math.random(0, 5))
+					// Writing to our file
+					reader.writeFile(file, './uploads/test.xlsx');
+					res.send(otherdata)
+				});
+			}
+		}).sort({ _id: -1 });
 	});
-});
 
-router.post('/deleteProfile', function (req, res, next) {
-	User.deleteOne({_id: req.body.id},function (err, data) {
-		if (err) {
-			res.send(err);
-		} else {
-			res.send(data);
-		}
+	router.get('/profileDetail', function (req, res, next) {
+		User.findOne({ _id: req.query.id }, function (err, data) {
+			if (!data) {
+				res.redirect('/');
+			} else {
+				UserImage.findOne({ user_id: data.unique_id }, function (err, imageData) {
+					if (imageData) {
+						OtherInfo.findOne({ users: data._id }, function (othererr, otherData) {
+							if (otherData) {
+								return res.render('profileDetail.ejs', { "name": req.session.username, "detailname": data.username, "email": data.email, "image_profile": imageData.file_name, "filePath": req.session.file_name, "address": otherData.address, "phone": otherData.phone, "postalcode": otherData.postalcode });
+							} else {
+								return res.render('profileDetail.ejs', { "name": req.session.username, "detailname": data.username, "email": data.email, "image_profile": imageData.file_name, "filePath": req.session.file_name, "address": "N/A", "phone": "N/A", "postalcode": "N/A" });
+							}
+						});
+					} else {
+						OtherInfo.findOne({ users: data._id }, function (othererr, otherData) {
+							if (otherData) {
+								return res.render('profileDetail.ejs', { "name": req.session.username, "detailname": data.username, "email": data.email, "image_profile": "", "filePath": req.session.file_name, "address": otherData.address, "phone": otherData.phone, "postalcode": otherData.postalcode });
+							} else {
+								return res.render('profileDetail.ejs', { "name": req.session.username, "detailname": data.username, "email": data.email, "image_profile": "", "filePath": req.session.file_name, "address": "N/A", "phone": "N/A", "postalcode": "N/A" });
+							}
+						});
+					}
+
+				});
+			}
+		});
 	});
-});
 
-module.exports = router;
+	router.post('/deleteProfile', function (req, res, next) {
+		User.deleteOne({ _id: req.body.id }, function (err, data) {
+			if (err) {
+				res.send(err);
+			} else {
+				res.send(data);
+			}
+		});
+	});
+
+	module.exports = router;

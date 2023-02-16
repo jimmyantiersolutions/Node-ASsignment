@@ -8,8 +8,8 @@
 	</script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-	<link rel="stylesheet" href="./css/styles.css">
-	<link rel="stylesheet" href="./css/header.css">
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="stylesheet" href="../css/header.css">
 	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
 	<script>
 		function sendMail() {
@@ -98,7 +98,7 @@
 	<div style="padding-left: 20px;padding-right: 20px;">
 		<div class="col-md-12 profileStyle">
 			<div>
-				<p>Users List(<%= data.length %>)</p>
+				<p>Users List(<%= count %>)</p>
 			</div>
 			<button class="btn btn-success" style="float: right;margin-top: -46px;" onclick="iportData()">Import to excel</button>
 			<div>
@@ -146,6 +146,34 @@
 							<% } %>
 
 					</table>
+					<% if (pages > 0) { %>
+						<ul class="pagination text-center">
+							<% if (current == 1) { %>
+								<li class="disabled"><a>First</a></li>
+							<% } else { %>
+								<li><a href="/userlist?page=1">First</a></li>
+							<% } %>
+							<% var i = (Number(current) > 5 ? Number(current) - 4 : 1) %>
+							<% if (i !== 1) { %>
+								<li class="disabled"><a>...</a></li>
+							<% } %>
+							<% for (; i <= (Number(current) + 4) && i <= pages; i++) { %>
+								<% if (i == current) { %>
+									<li class="active"><a><%= i %></a></li>
+								<% } else { %>
+									<li><a href="/userlist?page=<%= i %>"><%= i %></a></li>
+								<% } %>
+								<% if (i == Number(current) + 4 && i < pages) { %>
+									<li class="disabled"><a>...</a></li>
+								<% } %>
+							<% } %>
+							<% if (current == pages) { %>
+								<li class="disabled"><a>Last</a></li>
+							<% } else { %>
+								<li><a href="/userlist?page=<%= pages %>">Last</a></li>
+							<% } %>
+						</ul>
+					<% } %>
 				</center>
 			</div>
 			<div><a href="/profile"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back Profile</a></div>
